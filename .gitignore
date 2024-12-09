@@ -4,3 +4,4 @@ original photos/
 *.pyc
 *.bat
 config.json
+*.h5

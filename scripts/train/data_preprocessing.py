@@ -1,6 +1,4 @@
-# data_preprocessing.py
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 
 def get_data_generators():
     train_datagen = ImageDataGenerator(rescale=1.0 / 255)
@@ -8,11 +6,11 @@ def get_data_generators():
         "data/processed/train",
         target_size=(224, 224),
         batch_size=32,
-        class_mode="binary",
+        class_mode="categorical",
     )
     val_datagen = ImageDataGenerator(rescale=1.0 / 255)
     val_generator = val_datagen.flow_from_directory(
-        "data/processed/val", target_size=(224, 224), batch_size=32, class_mode="binary"
+        "data/processed/val", target_size=(224, 224), batch_size=32, class_mode="categorical"
     )
 
     test_generator = ImageDataGenerator(rescale=1.0 / 255)
@@ -20,7 +18,7 @@ def get_data_generators():
         "data/processed/test",
         target_size=(224, 224),
         batch_size=32,
-        class_mode="binary",
+        class_mode="categorical",
     )
 
     return train_generator, val_generator, test_generator

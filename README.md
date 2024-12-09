@@ -17,6 +17,7 @@
    1. 70% training, 15% validation, and 15% testing
       1. keep subfolders, control and positive
 4. Train
-   1. 
+   1. create_model:  convolutional neural network (CNN) model
+   2. 
 
 <!-- This is more like my experiment note than a README file -->
