@@ -5,3 +5,4 @@ original photos/
 *.bat
 config.json
 *.h5
+*.keras

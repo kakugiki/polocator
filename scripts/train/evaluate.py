@@ -6,6 +6,7 @@ import numpy as np
 import csv
 import os
 
+
 def evaluate_model(model_path):
     model = create_model()
     model.load_weights(model_path)
@@ -40,5 +41,5 @@ def evaluate_model(model_path):
 
 
 if __name__ == "__main__":
-    model_path = "models/trained_model.h5"
+    model_path = "models/best_model.keras"
     evaluate_model(model_path)
