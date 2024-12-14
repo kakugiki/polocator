@@ -3,3 +3,4 @@ pillow-heif
 tensorflow
 opencv-python
 scipy
+pandas

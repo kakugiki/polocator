@@ -18,6 +18,7 @@
       1. keep subfolders, control and positive
 4. Train
    1. create_model:  convolutional neural network (CNN) model
-   2. 
+5. Evaluation
+   1. Test Loss/Accuracy, Precision, Recall
 
 <!-- This is more like my experiment note than a README file -->

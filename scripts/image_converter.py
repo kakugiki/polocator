@@ -33,5 +33,8 @@ class ImageConverter:
 
 
 # Example usage:
-# converter = ImageConverter()
-# converter.convert_and_move("./data/raw/dog_poop", "./data/processed/dog_poop", "DP")
+if __name__ == "__main__":
+    converter = ImageConverter()
+    converter.convert_and_move(
+        "data/raw/predict/control", "data/processed/control", "C"
+    )
