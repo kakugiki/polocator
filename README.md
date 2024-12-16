@@ -16,9 +16,12 @@
 3. Splitting the Dataset
    1. 70% training, 15% validation, and 15% testing
       1. keep subfolders, control and positive
+         1. consolidate_and_split.py
+         2. split_structured.py
 4. Train
    1. create_model:  convolutional neural network (CNN) model
 5. Evaluation
-   1. Test Loss/Accuracy, Precision, Recall
+   1. Test Loss/Accuracy, Precision, Recall: 0.3992738425731659,0.8393782377243042,0.7881356,0.93939394
+      1. False positive when predict
 
 <!-- This is more like my experiment note than a README file -->
