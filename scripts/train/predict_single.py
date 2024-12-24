@@ -138,7 +138,7 @@ if __name__ == "__main__":
     predictor = ImagePredictor()
 
     # Single image prediction
-    img_path = "data/raw/control/2024-09-13_15-02-26_886.heic"
+    img_path = "data/processed/test/control/C_023.jpg"
     predicted_class, probabilities = predictor.predict(img_path)
     print(f"Predicted class: {predicted_class}")
     print(f"Class probabilities: {probabilities}")
