@@ -1,6 +1,5 @@
+tensorflow
 pillow
 pillow-heif
-tensorflow
-opencv-python
-scipy
 pandas
+opencv-python
