@@ -2,6 +2,7 @@
 from data_preprocessing import get_data_generators
 from model import create_model
 from tensorflow.keras.metrics import Precision, Recall
+from sklearn.metrics import confusion_matrix
 import numpy as np
 import csv
 import os
@@ -41,11 +42,20 @@ class ImagePredictor:
         y_pred_classes = np.argmax(y_pred, axis=1)
         precision.update_state(y_true, y_pred_classes)
         recall.update_state(y_true, y_pred_classes)
+        
+        # Calculate confusion matrix
+        cm = confusion_matrix(y_true, y_pred_classes)
+        tn, fp, fn, tp = cm.ravel()
+        
+        # Calculate specificity
+        specificity = tn / (tn + fp)
+        
         results = {
             "Test Loss": loss,
             "Test Accuracy": accuracy,
             "Precision": precision.result().numpy(),
             "Recall": recall.result().numpy(),
+            "Specificity": specificity
         }
         csv_file_path = os.path.join("models", "evaluation_results.csv")
         file_exists = os.path.exists(csv_file_path)
@@ -59,6 +69,7 @@ class ImagePredictor:
         print(f"Test Accuracy: {results['Test Accuracy']:.4f}")
         print(f"Precision: {results['Precision']:.4f}")
         print(f"Recall: {results['Recall']:.4f}")
+        print(f"Specificity: {results['Specificity']:.4f}")
         print(f"Results saved to: {os.path.abspath(csv_file_path)}")
 
 

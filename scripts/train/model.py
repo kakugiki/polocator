@@ -1,17 +1,28 @@
-from tensorflow import keras
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.optimizers import Adam
 
 def create_model():
-    model = keras.Sequential([
-        Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)), 
-        MaxPooling2D((2, 2)),
-        Conv2D(64, (3, 3), activation='relu'),
-        MaxPooling2D((2, 2)),
-        Flatten(),
-        Dense(64, activation='relu'),
-        Dense(2, activation='softmax') 
-    ])
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+    # Load ResNet50 with pre-trained weights, excluding top layers
+    base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    
+    # Freeze the base model layers
+    for layer in base_model.layers:
+        layer.trainable = False
+    
+    # Add custom top layers for our classification task
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(256, activation='relu')(x)
+    predictions = Dense(2, activation='softmax')(x)
+    
+    # Create the model
+    model = Model(inputs=base_model.input, outputs=predictions)
+    
+    # Compile with a lower learning rate
+    model.compile(optimizer=Adam(learning_rate=0.0001),
+                 loss='categorical_crossentropy',
+                 metrics=['accuracy'])
+    
     return model

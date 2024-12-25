@@ -20,8 +20,10 @@
          2. split_structured.py
 4. Train
    1. create_model:  convolutional neural network (CNN) model
+   2. Pre-trained ResNet50 base model with ImageNet weights
 5. Evaluation
    1. Test Loss/Accuracy, Precision, Recall: 0.3992738425731659,0.8393782377243042,0.7881356,0.93939394
       1. False positive when predict
+   2. 
 
 <!-- This is more like my experiment note than a README file -->

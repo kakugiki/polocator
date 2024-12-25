@@ -7,3 +7,4 @@ config.json
 *.h5
 *.keras
 models/prediction_results.csv
+docs/

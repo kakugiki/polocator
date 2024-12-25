@@ -1,6 +1,7 @@
 from data_preprocessing import get_data_generators
 from model import create_model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
 import os
 
 
@@ -52,27 +53,57 @@ class ModelTrainer:
 
         return [early_stopping, best_model_checkpoint, last_model_checkpoint]
 
-    def train_model(self, epochs=50, verbose=1):
+    def train_model(self, initial_epochs=10, fine_tune_epochs=40, verbose=1):
         """
-        Train the model with the specified parameters.
+        Train the model using a two-phase approach:
+        1. Train only the top layers
+        2. Fine-tune the top layers of the base model
 
         Args:
-            epochs (int): Number of epochs to train
+            initial_epochs (int): Number of epochs for initial training
+            fine_tune_epochs (int): Number of epochs for fine-tuning
             verbose (int): Verbosity mode (0, 1, or 2)
 
         Returns:
-            history: Training history
+            tuple: (initial_history, fine_tune_history)
         """
         if self.model is None:
             self.setup_model()
 
         callbacks_list = self._create_callbacks()
 
-        # Training logic using model.fit
-        history = self.model.fit(
+        # Phase 1: Training only the top layers
+        print("Phase 1: Training top layers...")
+        initial_history = self.model.fit(
             self.train_generator,
             steps_per_epoch=len(self.train_generator),
-            epochs=epochs,
+            epochs=initial_epochs,
+            validation_data=self.val_generator,
+            validation_steps=len(self.val_generator),
+            verbose=verbose,
+            callbacks=callbacks_list,
+        )
+
+        # Phase 2: Fine-tuning
+        print("Phase 2: Fine-tuning top layers of ResNet50...")
+        # Unfreeze the last 30 layers of the ResNet50 base
+        base_model = self.model.layers[1]  # ResNet50 is the second layer
+        for layer in base_model._layers[-30:]:
+            layer.trainable = True
+
+        # Recompile with a lower learning rate for fine-tuning
+        self.model.compile(
+            optimizer=Adam(
+                learning_rate=1e-5
+            ),  # Even lower learning rate for fine-tuning
+            loss="categorical_crossentropy",
+            metrics=["accuracy"],
+        )
+
+        fine_tune_history = self.model.fit(
+            self.train_generator,
+            steps_per_epoch=len(self.train_generator),
+            epochs=fine_tune_epochs,
             validation_data=self.val_generator,
             validation_steps=len(self.val_generator),
             verbose=verbose,
@@ -84,7 +115,7 @@ class ModelTrainer:
         self.model.save(model_path)
         print(f"Model saved to: {os.path.abspath(model_path)}")
 
-        return history
+        return initial_history, fine_tune_history
 
     def get_model(self):
         """Return the trained model"""
@@ -94,4 +125,3 @@ class ModelTrainer:
 if __name__ == "__main__":
     trainer = ModelTrainer()
     trained_model = trainer.train_model()
-    print(f"Model saved to: {os.path.abspath('models/trained_model.keras')}")
