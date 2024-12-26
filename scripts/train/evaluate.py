@@ -39,7 +39,9 @@ class ImageEvaluator:
         loss, accuracy = model.evaluate(test_generator)
         y_pred = model.predict(test_generator)
         y_true = test_generator.classes
-        y_pred_classes = np.argmax(y_pred, axis=1)
+        y_pred_classes = (
+            (y_pred > 0.5).astype("int32").flatten()
+        )  # Threshold at 0.5 for binary classification
         precision.update_state(y_true, y_pred_classes)
         recall.update_state(y_true, y_pred_classes)
 

@@ -86,10 +86,12 @@ class ImagePredictor:
 
                     # Predict
                     prediction = self.model.predict(img_array, verbose=0)
-                    class_probabilities = prediction[0]
+                    class_probability = prediction[0][
+                        0
+                    ]  # Single probability for binary classification
 
                     # Store results
-                    results.append(class_probabilities)
+                    results.append(class_probability)
                     filenames.append(filename)
                 except Exception as e:
                     print(f"Error processing {filename}: {str(e)}")
@@ -101,14 +103,15 @@ class ImagePredictor:
             return None
 
         print(f"Number of files processed: {len(filenames)}")
-        print(f"Shape of first result: {results[0].shape if results else 'No results'}")
 
         df = pd.DataFrame(
             results,
             index=filenames,
-            columns=[f"Class_{i}" for i in range(len(results[0]))],
+            columns=["Class_Probability"],
         )
-        df["Predicted_Class"] = df.apply(lambda row: np.argmax(row), axis=1)
+        df["Predicted_Class"] = df["Class_Probability"].apply(
+            lambda x: 1 if x > 0.5 else 0
+        )
 
         # Save results
         df.to_csv(output_csv)
@@ -122,7 +125,7 @@ class ImagePredictor:
             image_path (str): Path to the image file
 
         Returns:
-            tuple: (predicted_class, class_probabilities)
+            tuple: (predicted_class, class_probability)
         """
         img = self.load_image(image_path, self.target_size)
         img_array = img_to_array(img)
@@ -130,9 +133,12 @@ class ImagePredictor:
         img_array = img_array / 255.0
 
         prediction = self.model.predict(img_array, verbose=0)
-        predicted_class = np.argmax(prediction, axis=1)[0]
+        class_probability = prediction[0][
+            0
+        ]  # Single probability for binary classification
+        predicted_class = 1 if class_probability > 0.5 else 0
 
-        return predicted_class, prediction[0]
+        return predicted_class, class_probability
 
 
 # Example usage
@@ -147,6 +153,6 @@ if __name__ == "__main__":
 
     # Or make single prediction
     # image_path = "data/processed/test/control/C_023.jpg"
-    # class_pred, probabilities = predictor.predict_single(image_path)
+    # class_pred, probability = predictor.predict_single(image_path)
     # print(f"Predicted class: {class_pred}")
-    # print(f"Class probabilities: {probabilities}")
+    # print(f"Class probability: {probability}")

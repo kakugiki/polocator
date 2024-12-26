@@ -96,7 +96,7 @@ class ModelTrainer:
             optimizer=Adam(
                 learning_rate=1e-5
             ),  # Even lower learning rate for fine-tuning
-            loss="categorical_crossentropy",
+            loss="binary_crossentropy",
             metrics=["accuracy"],
         )
 
