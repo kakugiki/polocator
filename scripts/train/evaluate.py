@@ -8,10 +8,10 @@ import csv
 import os
 
 
-class ImagePredictor:
+class ImageEvaluator:
     def __init__(self, model_path="models/best_model.keras", target_size=(224, 224)):
         """
-        Initialize the ImagePredictor with a model and target image size.
+        Initialize the ImageEvaluator with a model and target image size.
 
         Args:
             model_path (str): Path to the trained Keras model
@@ -42,20 +42,20 @@ class ImagePredictor:
         y_pred_classes = np.argmax(y_pred, axis=1)
         precision.update_state(y_true, y_pred_classes)
         recall.update_state(y_true, y_pred_classes)
-        
+
         # Calculate confusion matrix
         cm = confusion_matrix(y_true, y_pred_classes)
         tn, fp, fn, tp = cm.ravel()
-        
+
         # Calculate specificity
         specificity = tn / (tn + fp)
-        
+
         results = {
             "Test Loss": loss,
             "Test Accuracy": accuracy,
             "Precision": precision.result().numpy(),
             "Recall": recall.result().numpy(),
-            "Specificity": specificity
+            "Specificity": specificity,
         }
         csv_file_path = os.path.join("models", "evaluation_results.csv")
         file_exists = os.path.exists(csv_file_path)
@@ -75,5 +75,5 @@ class ImagePredictor:
 
 if __name__ == "__main__":
     model_path = "models/trained_model.keras"
-    predictor = ImagePredictor(model_path)
-    predictor.evaluate_model()
+    evaluator = ImageEvaluator(model_path)
+    evaluator.evaluate_model()

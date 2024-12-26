@@ -125,3 +125,9 @@ class ModelTrainer:
 if __name__ == "__main__":
     trainer = ModelTrainer()
     trained_model = trainer.train_model()
+
+    from evaluate import ImageEvaluator
+
+    model_path = "models/trained_model.keras"
+    evaluator = ImageEvaluator(model_path)
+    evaluator.evaluate_model()
