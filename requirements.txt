@@ -3,3 +3,5 @@ pillow
 pillow-heif
 pandas
 opencv-python
+scikit-learn
+matplotlib

@@ -1,5 +1,7 @@
-from tensorflow.keras.models import load_model
+from model import create_model
+from data_preprocessing import get_data_generators
 from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.resnet50 import preprocess_input
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -8,7 +10,7 @@ import os
 
 
 class ImagePredictor:
-    def __init__(self, model_path="models/best_model.keras", target_size=(224, 224)):
+    def __init__(self, model_path="models/best_model.keras", target_size=(100, 100)):
         """
         Initialize the Predict class with model path and target size
 
@@ -23,7 +25,9 @@ class ImagePredictor:
     def _load_model(self):
         """Load the model from the specified path"""
         try:
-            return load_model(self.model_path)
+            model = create_model()
+            model.load_weights(self.model_path)
+            return model
         except Exception as e:
             print(f"Error loading model from {self.model_path}: {str(e)}")
             raise
@@ -72,6 +76,10 @@ class ImagePredictor:
         results = []
         filenames = []
 
+        # Get class names from data generator
+        _, _, test_generator = get_data_generators()
+        class_names = list(test_generator.class_indices.keys())
+
         # Process each image in the folder
         for filename in os.listdir(folder_path):
             if filename.endswith((".png", ".jpg", ".jpeg", ".heic")):
@@ -82,17 +90,22 @@ class ImagePredictor:
                     img = self.load_image(img_path, target_size=self.target_size)
                     img_array = img_to_array(img)
                     img_array = np.expand_dims(img_array, axis=0)
-                    img_array = img_array / 255.0
+                    img_array = preprocess_input(img_array)  # Use ResNet50's preprocessing
 
                     # Predict
                     prediction = self.model.predict(img_array, verbose=0)
-                    class_probability = prediction[0][
-                        0
-                    ]  # Single probability for binary classification
-
-                    # Store results
-                    results.append(class_probability)
+                    
+                    # Store results (probabilities for all classes)
+                    results.append(prediction[0])
                     filenames.append(filename)
+
+                    # Debugging: Log intermediate values
+                    predicted_class = np.argmax(prediction[0])
+                    class_probabilities = {class_names[i]: prob for i, prob in enumerate(prediction[0])}
+                    print(f"Processed {filename}:")
+                    print(f"  Predicted class: {class_names[predicted_class]}")
+                    print(f"  Class probabilities: {class_probabilities}")
+
                 except Exception as e:
                     print(f"Error processing {filename}: {str(e)}")
                     continue
@@ -104,14 +117,15 @@ class ImagePredictor:
 
         print(f"Number of files processed: {len(filenames)}")
 
+        # Create DataFrame with probabilities for each class
         df = pd.DataFrame(
             results,
             index=filenames,
-            columns=["Class_Probability"],
+            columns=[f"{name}_Probability" for name in class_names]
         )
-        df["Predicted_Class"] = df["Class_Probability"].apply(
-            lambda x: 1 if x > 0.5 else 0
-        )
+        
+        # Add predicted class column
+        df["Predicted_Class"] = df.idxmax(axis=1).apply(lambda x: x.replace("_Probability", ""))
 
         # Save results
         df.to_csv(output_csv)
@@ -125,34 +139,52 @@ class ImagePredictor:
             image_path (str): Path to the image file
 
         Returns:
-            tuple: (predicted_class, class_probability)
+            tuple: (predicted_class_name, class_probabilities)
         """
+        # Get class names from data generator
+        _, _, test_generator = get_data_generators()
+        class_names = list(test_generator.class_indices.keys())
+
         img = self.load_image(image_path, self.target_size)
         img_array = img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+        img_array = preprocess_input(img_array)  # Use ResNet50's preprocessing
 
         prediction = self.model.predict(img_array, verbose=0)
-        class_probability = prediction[0][
-            0
-        ]  # Single probability for binary classification
-        predicted_class = 1 if class_probability > 0.5 else 0
+        predicted_class_idx = np.argmax(prediction[0])
+        class_probabilities = {class_names[i]: prob for i, prob in enumerate(prediction[0])}
 
-        return predicted_class, class_probability
+        # Debugging: Log intermediate values
+        print(f"Processed {image_path}:")
+        print(f"  Predicted class: {class_names[predicted_class_idx]}")
+        print(f"  Class probabilities: {class_probabilities}")
+
+        return class_names[predicted_class_idx], class_probabilities
 
 
 # Example usage
 if __name__ == "__main__":
-    predictor = ImagePredictor()
+    model_path = "models/resnet50_model.keras"
+    predictor = ImagePredictor(model_path)
 
-    # Process entire folder
-    results_df = predictor.process_folder(
+    # Process test folders
+    print("\nProcessing control images:")
+    control_results = predictor.process_folder(
         folder_path="data/processed/test/control",
-        output_csv="models/prediction_results.csv",
+        output_csv="models/prediction_results_control.csv",
+    )
+    
+    print("\nProcessing positive images:")
+    positive_results = predictor.process_folder(
+        folder_path="data/processed/test/positive",
+        output_csv="models/prediction_results_positive.csv",
     )
 
-    # Or make single prediction
-    # image_path = "data/processed/test/control/C_023.jpg"
-    # class_pred, probability = predictor.predict_single(image_path)
-    # print(f"Predicted class: {class_pred}")
-    # print(f"Class probability: {probability}")
+    # Example of single prediction
+    print("\nSingle image prediction example:")
+    image_path = "data/processed/test/control/C_023.jpg"
+    predicted_class, probabilities = predictor.predict_single(image_path)
+    print(f"\nFinal prediction for {image_path}:")
+    print(f"  Predicted class: {predicted_class}")
+    for class_name, prob in probabilities.items():
+        print(f"  {class_name} probability: {prob:.4f}")

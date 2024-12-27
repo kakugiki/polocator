@@ -22,23 +22,23 @@ def get_data_generators():
     # Create generators
     train_generator = train_datagen.flow_from_directory(
         "data/processed/train",
-        target_size=(224, 224),
+        target_size=(100, 100),
         batch_size=32,
-        class_mode="binary",
+        class_mode="categorical",
     )
 
     val_generator = val_datagen.flow_from_directory(
         "data/processed/val",
-        target_size=(224, 224),
+        target_size=(100, 100),
         batch_size=32,
-        class_mode="binary",
+        class_mode="categorical",
     )
 
     test_generator = test_datagen.flow_from_directory(
         "data/processed/test",
-        target_size=(224, 224),
+        target_size=(100, 100),
         batch_size=32,
-        class_mode="binary",
+        class_mode="categorical",
         shuffle=False,
     )
 
