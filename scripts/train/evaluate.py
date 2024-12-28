@@ -5,7 +5,7 @@ from tensorflow.keras.metrics import Precision, Recall
 from sklearn.metrics import confusion_matrix
 import numpy as np
 import csv
-import os
+import os, sys
 
 
 class ImageEvaluator:
@@ -44,6 +44,13 @@ class ImageEvaluator:
 
         # Calculate confusion matrix
         cm = confusion_matrix(y_true, y_pred_classes)
+        print("Confusion Matrix:")
+        print(cm)
+
+        print(test_generator.class_indices)
+        labels = [None] * len(test_generator.class_indices)
+        for k, v in test_generator.class_indices.items():
+            labels[v] = k
 
         # Calculate metrics for each class
         class_names = list(test_generator.class_indices.keys())
@@ -104,6 +111,11 @@ class ImageEvaluator:
             print(f"  Recall: {metrics['Recall']:.4f}")
             print(f"  Specificity: {metrics['Specificity']:.4f}")
         print(f"Results saved to: {os.path.abspath(csv_file_path)}")
+
+        # sys.path.append(os.path.abspath("../utils"))
+        # from util import plot_confusion_matrix
+
+        # plot_confusion_matrix(cm, labels, title="Train confusion matrix")
 
 
 if __name__ == "__main__":

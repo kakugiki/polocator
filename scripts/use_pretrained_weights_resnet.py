@@ -19,8 +19,7 @@ from sklearn.metrics import confusion_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 
-import sys
-import os
+import os, sys
 
 from glob import glob
 
