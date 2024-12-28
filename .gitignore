@@ -7,4 +7,3 @@ config.json
 *.h5
 *.keras
 docs/
-models/

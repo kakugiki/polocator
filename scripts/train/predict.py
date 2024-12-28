@@ -90,21 +90,25 @@ class ImagePredictor:
                     img = self.load_image(img_path, target_size=self.target_size)
                     img_array = img_to_array(img)
                     img_array = np.expand_dims(img_array, axis=0)
-                    img_array = preprocess_input(img_array)  # Use ResNet50's preprocessing
+                    img_array = preprocess_input(
+                        img_array
+                    )  # Use ResNet50's preprocessing
 
                     # Predict
                     prediction = self.model.predict(img_array, verbose=0)
-                    
+
                     # Store results (probabilities for all classes)
                     results.append(prediction[0])
                     filenames.append(filename)
 
                     # Debugging: Log intermediate values
                     predicted_class = np.argmax(prediction[0])
-                    class_probabilities = {class_names[i]: prob for i, prob in enumerate(prediction[0])}
-                    print(f"Processed {filename}:")
-                    print(f"  Predicted class: {class_names[predicted_class]}")
-                    print(f"  Class probabilities: {class_probabilities}")
+                    class_probabilities = {
+                        class_names[i]: prob for i, prob in enumerate(prediction[0])
+                    }
+                    # print(f"Processed {filename}:")
+                    # print(f"  Predicted class: {class_names[predicted_class]}")
+                    # print(f"  Class probabilities: {class_probabilities}")
 
                 except Exception as e:
                     print(f"Error processing {filename}: {str(e)}")
@@ -121,11 +125,13 @@ class ImagePredictor:
         df = pd.DataFrame(
             results,
             index=filenames,
-            columns=[f"{name}_Probability" for name in class_names]
+            columns=[f"{name}_Probability" for name in class_names],
         )
-        
+
         # Add predicted class column
-        df["Predicted_Class"] = df.idxmax(axis=1).apply(lambda x: x.replace("_Probability", ""))
+        df["Predicted_Class"] = df.idxmax(axis=1).apply(
+            lambda x: x.replace("_Probability", "")
+        )
 
         # Save results
         df.to_csv(output_csv)
@@ -152,7 +158,9 @@ class ImagePredictor:
 
         prediction = self.model.predict(img_array, verbose=0)
         predicted_class_idx = np.argmax(prediction[0])
-        class_probabilities = {class_names[i]: prob for i, prob in enumerate(prediction[0])}
+        class_probabilities = {
+            class_names[i]: prob for i, prob in enumerate(prediction[0])
+        }
 
         # Debugging: Log intermediate values
         print(f"Processed {image_path}:")
@@ -173,18 +181,18 @@ if __name__ == "__main__":
         folder_path="data/processed/test/control",
         output_csv="models/prediction_results_control.csv",
     )
-    
+
     print("\nProcessing positive images:")
     positive_results = predictor.process_folder(
         folder_path="data/processed/test/positive",
         output_csv="models/prediction_results_positive.csv",
     )
 
-    # Example of single prediction
-    print("\nSingle image prediction example:")
-    image_path = "data/processed/test/control/C_023.jpg"
-    predicted_class, probabilities = predictor.predict_single(image_path)
-    print(f"\nFinal prediction for {image_path}:")
-    print(f"  Predicted class: {predicted_class}")
-    for class_name, prob in probabilities.items():
-        print(f"  {class_name} probability: {prob:.4f}")
+    # # Example of single prediction
+    # print("\nSingle image prediction example:")
+    # image_path = "data/processed/test/control/C_023.jpg"
+    # predicted_class, probabilities = predictor.predict_single(image_path)
+    # print(f"\nFinal prediction for {image_path}:")
+    # print(f"  Predicted class: {predicted_class}")
+    # for class_name, prob in probabilities.items():
+    #     print(f"  {class_name} probability: {prob:.4f}")

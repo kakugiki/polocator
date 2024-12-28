@@ -21,12 +21,11 @@
 4. Train
    1. create_model:  convolutional neural network (CNN) model
    2. Pre-trained ResNet50 base model with ImageNet weights
-      1. binary
+      1. categorical_crossentropy
 5. Evaluation
    1. Test Loss/Accuracy, Precision, Recall: 0.3992738425731659,0.8393782377243042,0.7881356,0.93939394
       1. False positive when predict
-   2. Test Loss,Test Accuracy,Precision,Recall,Specificity: 0.4763069450855255,0.772020697593689,0.9230769,0.6060606,0.9468085106382979
-      1. All controls become positives, and after re-train without code change, all positives negatives?!
-         1. same
+   2. Test Loss,Test Accuracy,Precision,Recall,Specificity: 2.603893280029297,0.787564754486084,0.79954802259887,0.7848699763593381,0.7848699763593381
+      1. Better prediction
 
 <!-- This is more like my experiment note than a README file -->
