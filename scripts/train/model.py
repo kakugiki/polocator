@@ -18,6 +18,7 @@ def create_model():
     # Add custom top layers for our classification task
     x = base_model.output
     x = Flatten()(x)
+    x = Dense(1024, activation="relu")(x)
     predictions = Dense(2, activation="softmax")(x)
 
     # Create the model

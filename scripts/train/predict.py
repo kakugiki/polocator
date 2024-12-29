@@ -8,9 +8,12 @@ from PIL import Image
 import pillow_heif
 import os
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 class ImagePredictor:
-    def __init__(self, model_path="models/best_model.keras", target_size=(100, 100)):
+    def __init__(self, model_path="models/resnet50_model.keras", target_size=(100, 100)):
         """
         Initialize the Predict class with model path and target size
 
@@ -169,6 +172,35 @@ class ImagePredictor:
 
         return class_names[predicted_class_idx], class_probabilities
 
+    def plot_prediction_results(self, df):
+        """
+        Create visualizations for prediction results
+        
+        Args:
+            df: DataFrame containing prediction results
+        """
+        plt.figure(figsize=(12, 6))
+
+        # 1. Bar plot of class distribution
+        plt.subplot(1, 2, 1)
+        class_counts = df['Predicted_Class'].value_counts()
+        sns.barplot(x=class_counts.index, y=class_counts.values)
+        plt.title('Distribution of Predicted Classes')
+        plt.xticks(rotation=45)
+        plt.ylabel('Count')
+
+        # 2. Box plot of prediction probabilities
+        plt.subplot(1, 2, 2)
+        prob_columns = [col for col in df.columns if col.endswith('_Probability')]
+        prob_data = df[prob_columns]
+        prob_data.columns = [col.replace('_Probability', '') for col in prob_columns]
+        sns.boxplot(data=prob_data)
+        plt.title('Distribution of Class Probabilities')
+        plt.xticks(rotation=45)
+        plt.ylabel('Probability')
+
+        plt.tight_layout()
+        plt.show()
 
 # Example usage
 if __name__ == "__main__":
@@ -187,6 +219,10 @@ if __name__ == "__main__":
         folder_path="data/processed/test/positive",
         output_csv="models/prediction_results_positive.csv",
     )
+    if control_results is not None:
+        predictor.plot_prediction_results(control_results)
+    if positive_results is not None:
+        predictor.plot_prediction_results(positive_results)
 
     # # Example of single prediction
     # print("\nSingle image prediction example:")

@@ -42,9 +42,9 @@ valid_image_files = glob(valid_path + "/*/*.jp*g")
 folders = glob(train_path + "/*")
 
 
-# look at an image for fun
-plt.imshow(image.load_img(np.random.choice(image_files)))
-plt.show()
+# # look at an image for fun
+# plt.imshow(image.load_img(np.random.choice(image_files)))
+# plt.show()
 
 
 # add preprocessing layer to the front of ResNet50
@@ -56,15 +56,15 @@ for layer in res.layers:
 
 # our layers - you can add more if you want
 x = Flatten()(res.output)
-# x = Dense(1000, activation='relu')(x)
+x = Dense(1024, activation="relu")(x)
 prediction = Dense(len(folders), activation="softmax")(x)
 
 
 # create a model object
 model = Model(inputs=res.input, outputs=prediction)
 
-# view the structure of the model
-model.summary()
+# # view the structure of the model
+# model.summary()
 
 # tell the model what cost and optimization method to use
 model.compile(
@@ -94,13 +94,13 @@ labels = [None] * len(test_gen.class_indices)
 for k, v in test_gen.class_indices.items():
     labels[v] = k
 
-# should be a strangely colored image (due to VGG weights being BGR)
-for x, y in test_gen:
-    print("min:", x[0].min(), "max:", x[0].max())
-    plt.title(labels[np.argmax(y[0])])
-    plt.imshow(x[0])
-    plt.show()
-    break
+# # should be a strangely colored image (due to VGG weights being BGR)
+# for x, y in test_gen:
+#     print("min:", x[0].min(), "max:", x[0].max())
+#     plt.title(labels[np.argmax(y[0])])
+#     plt.imshow(x[0])
+#     plt.show()
+#     break
 
 
 # create generators
